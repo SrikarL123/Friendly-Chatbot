@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Start Chatbot</title>
+
+<style>
+
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  /* NEW BACKGROUND */
+  background-color:black;
+  background-image:url("/static/spiderman_symbol.jpg");
+  background-position:center;
+  background-size:150%;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+
+  color:white;
+  font-family:Arial;
+}
+.box{
+  text-align:center;
+  background:rgba(0,0,0,0.65);
+  padding:40px;
+  border-radius:14px;
+  backdrop-filter: blur(8px);
+}
+
+
+.box{
+  text-align:center;
+}
+
+input{
+  padding:14px;
+  margin-top:20px;
+  width:260px;
+  background:#111;
+  border:1px solid #333;
+  color:white;
+  border-radius:8px;
+}
+
+button{
+  margin-top:14px;
+  width:100%;
+  padding:12px;
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+button.active{
+  opacity:1;
+  cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Please enter your name</h2>
+
+<input id="nameInput" placeholder="Your name..." autocomplete="off"/>
+
+<button id="startBtn" disabled>Start</button>
+
+</div>
+
+<script>
+
+const nameInput=document.getElementById("nameInput");
+const startBtn=document.getElementById("startBtn");
+
+nameInput.addEventListener("input",()=>{
+
+if(nameInput.value.trim().length>0){
+  startBtn.disabled=false;
+  startBtn.classList.add("active");
+}else{
+  startBtn.disabled=true;
+  startBtn.classList.remove("active");
+}
+
+});
+
+function start(){
+
+const name=nameInput.value.trim();
+
+if(!name)return;
+
+localStorage.setItem("chatName",name);
+
+window.location.href="/chatbot"; // go to chatbot page
+}
+
+startBtn.onclick=start;
+
+nameInput.addEventListener("keydown",(e)=>{
+if(e.key==="Enter") start();
+});
+
+</script>
+
+</body>
+</html>
+

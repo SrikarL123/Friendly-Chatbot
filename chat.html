@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Groq Chatbot</title>
+  <style>
+
+    *{
+  box-sizing: border-box;
+}
+
+    :root{
+      --bg: #111;
+      --text: #fff;
+      --chat-bg: #111;
+      --border: #333;
+      --input-bg: #222;
+      --button-bg: #1a73e8;
+      --button-text: #fff;
+    }
+    
+   .chat-container{
+
+  width:100%;
+  max-width:1200px;
+  margin:20px auto;
+
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(10px);
+
+  padding:30px;
+  border-radius:16px;
+
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+
+
+    :root[data-theme="light"]{
+  --bg: #fff;
+
+  /* FORCE WHITE TEXT */
+  --text: #fff;
+
+  --chat-bg: #f7f7f7;
+  --border: #ddd;
+  --input-bg: #222;
+  --button-bg: #111;
+  --button-text: #fff;
+}
+
+
+    
+    body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+
+  /* DARK MODE BACKGROUND */
+  background-image: url("/static/darkmode.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  color: var(--text);
+  max-width: 1000px;
+  margin: auto;
+  padding: 40px 16px 24px;
+  box-sizing: border-box;
+  transition: background 260ms ease;
+  min-height: 100vh;
+}
+
+:root[data-theme="light"] body {
+
+  /* LIGHT MODE BACKGROUND */
+  background-image: url("/static/lightmode.png");
+
+}
+
+
+    .layout{display:flex;gap:18px;align-items:flex-start}
+    .sidebar{width:220px;flex:0 0 220px;margin-top:36px}
+    .main{flex:1}
+
+    #chat {
+      min-height: 350px;
+      max-height: 30vh;
+      overflow: auto;
+      background: transparent;
+      padding: 18px;
+      margin-bottom: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      border-radius: 12px;
+    }
+
+    .input-row{display:flex;gap:8px;align-items:center}
+    #msg{flex:1;padding:14px 16px;font-size:16px;background:var(--input-bg);color:var(--text);border:1px solid var(--border);border-radius:8px}
+    button{padding:10px 14px;font-size:16px;background:var(--button-bg);color:var(--button-text);border:none;border-radius:8px;cursor:pointer}
+
+    /* Sidebar buttons */
+    .side-btn{display:block;width:100%;padding:10px 12px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text);border-radius:8px;text-align:left;cursor:pointer}
+    .side-section{background:transparent;padding:6px}
+    .prev-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:6px 0}
+    .arrow{display:inline-block;transition:transform 180ms ease}
+    .arrow.open{transform:rotate(90deg)}
+    .prev-list{max-height:0;overflow:hidden;transition:max-height 220ms ease}
+    .prev-item{padding:8px;border-radius:6px;margin-bottom:6px;background:rgba(0,0,0,0.12);cursor:pointer}
+
+    .theme-toggle{position:fixed;left:12px;top:12px}
+
+    /* Custom sun/moon toggle */
+    .theme-toggle input[type="checkbox"]{position:absolute;opacity:0;width:0;height:0}
+    .switch{display:flex;align-items:center;position:relative;width:78px;height:34px;padding:4px;border-radius:999px;background:var(--input-bg);border:1px solid var(--border);box-sizing:border-box;cursor:pointer}
+    .switch .sun,.switch .moon{font-size:14px;width:22px;text-align:center;z-index:1;color:var(--text);user-select:none}
+    .switch .sun{margin-left:6px}
+    .switch .moon{margin-left:auto;margin-right:6px}
+    .switch .knob{position:absolute;left:4px;top:4px;width:26px;height:26px;background:var(--button-bg);border-radius:50%;transition:transform 0.18s ease}
+    input:checked + .switch .knob{transform:translateX(40px)}
+    input:checked + .switch{background:var(--input-bg)}
+  </style>
+</head>
+
+<body>
+
+<div class="theme-toggle">
+  <input type="checkbox" id="theme" />
+  <label for="theme" class="switch">
+    <span class="sun">☀️</span>
+    <span class="knob" aria-hidden="true"></span>
+    <span class="moon">🌙</span>
+  </label>
+</div>
+
+<div class="chat-container">
+
+<h2 id="botTitle">Your Friendly Neighbourhood Chatbot</h2>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="side-section">
+      <button id="newChat" class="side-btn">+ New Chat</button>
+      <div class="prev-section">
+        <div class="prev-header" id="prevToggle">
+          <strong>Previous Chats</strong>
+          <span class="arrow" id="prevArrow">▶</span>
+        </div>
+        <div class="prev-list" id="prevList"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="chat"></div>
+
+    <div class="input-row">
+      <input id="msg" placeholder="Type message..." autocomplete="off" />
+      <button id="sendBtn" onclick="send()" type="button">Send</button>
+    </div>
+  </main>
+</div>
+
+<script>
+
+// ===== USER NAME GREETING =====
+
+const savedName = localStorage.getItem("chatName");
+
+if(savedName){
+
+  const title = document.getElementById("botTitle");
+
+  title.textContent = `Hello ${savedName}, I am your Friendly Neighbourhood Chatbot`;
+
+}
+
+let messages = [];
+
+async function send(){
+
+  const input = document.getElementById("msg");
+  const text = input.value;
+
+  if (!text || !text.trim()) {
+    input.value = "";
+    input.focus();
+    return;
+  }
+
+  add("You: " + text);
+  messages.push({role:"user",content:text});
+
+  try {
+    const response = await fetch("/chat",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+      },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await response.json();
+    const reply = data.reply || '';
+    add("Bot: " + reply);
+    messages.push({role:"assistant",content:reply});
+  } catch (err) {
+    add("Bot: (error) Could not reach server");
+  }
+
+  input.value = "";
+  input.focus();
+}
+
+function add(text){
+  const chat = document.getElementById("chat");
+  chat.innerHTML += "<p>"+text+"</p>";
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// Send message when user presses Enter
+document.getElementById("msg").addEventListener("keydown", function(e){
+  if (e.key === "Enter"){
+    e.preventDefault();
+    send();
+  }
+});
+
+// Theme toggle logic: persist selection and apply
+const themeCheckbox = document.getElementById('theme');
+function applyTheme(theme){
+  if (theme === 'light') document.documentElement.setAttribute('data-theme','light');
+  else document.documentElement.removeAttribute('data-theme');
+}
+
+const saved = localStorage.getItem('theme');
+if (saved === 'light'){
+  themeCheckbox.checked = true;
+  applyTheme('light');
+} else {
+  themeCheckbox.checked = false;
+  applyTheme('dark');
+}
+
+themeCheckbox.addEventListener('change', ()=>{
+  if (themeCheckbox.checked){
+    localStorage.setItem('theme','light');
+    applyTheme('light');
+  } else {
+    localStorage.setItem('theme','dark');
+    applyTheme('dark');
+  }
+});
+
+// Previous chats: save on new chat, load list, and allow viewing
+function getSavedChats(){
+  try{return JSON.parse(localStorage.getItem('savedChats')||'[]')}catch(e){return[]}
+}
+
+function saveChatToStorage(chat){
+  if (!chat || !chat.length) return;
+  const all = getSavedChats();
+  all.unshift({id:Date.now(),messages:chat.slice(),title:chat[0]?.content?.slice(0,40)||'Chat'});
+  localStorage.setItem('savedChats',JSON.stringify(all.slice(0,50)));
+  renderSavedList();
+}
+
+function renderSavedList(){
+  const list = document.getElementById('prevList');
+  const all = getSavedChats();
+  list.innerHTML = '';
+  all.forEach((c,idx)=>{
+    const d = document.createElement('div');
+    d.className='prev-item';
+    d.textContent = c.title + ' — ' + new Date(c.id).toLocaleString();
+    d.addEventListener('click', ()=> loadChat(idx));
+    list.appendChild(d);
+  });
+}
+
+function newChat(){
+  if (messages && messages.length){
+    saveChatToStorage(messages);
+  }
+  messages = [];
+  document.getElementById('chat').innerHTML = '';
+}
+
+function loadChat(index){
+  const all = getSavedChats();
+  const chatData = all[index];
+  if (!chatData) return;
+  messages = chatData.messages.slice();
+  const chat = document.getElementById('chat');
+  chat.innerHTML = '';
+  messages.forEach(m=> add((m.role==='user'? 'You: ':'Bot: ') + m.content));
+}
+
+document.getElementById('newChat').addEventListener('click', newChat);
+
+const prevToggle = document.getElementById('prevToggle');
+const prevList = document.getElementById('prevList');
+const prevArrow = document.getElementById('prevArrow');
+let prevOpen = false;
+prevToggle.addEventListener('click', ()=>{
+  prevOpen = !prevOpen;
+  if (prevOpen){
+    prevList.style.maxHeight = '300px';
+    prevArrow.classList.add('open');
+  } else {
+    prevList.style.maxHeight = '0';
+    prevArrow.classList.remove('open');
+  }
+});
+
+// initialize saved list
+renderSavedList();
+
+</script>
+
+</body>
+</html>
+
