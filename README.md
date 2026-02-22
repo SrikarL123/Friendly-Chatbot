@@ -1,10 +1,10 @@
-🚀 Friendly Neighbourhood Chatbot
+#🚀 Friendly Neighbourhood Chatbot
 
 A modern AI-powered chatbot built using Flask and Groq API, designed with a responsive conversational interface and real-time AI responses.
 
 This project demonstrates full-stack development by combining a Python backend with a dynamic frontend UI, featuring session-based interaction, theme customization, and persistent chat storage.
 
-✨ Features
+#✨ Features
 
   ->🤖 AI chatbot powered by Groq LLM API
   
@@ -23,7 +23,8 @@ This project demonstrates full-stack development by combining a Python backend w
   ->🔐 Secure API key management using environment variables
 
 
-🛠️ Tech Stack
+
+#🛠️ Tech Stack
 
   ->Python (Flask)
   
