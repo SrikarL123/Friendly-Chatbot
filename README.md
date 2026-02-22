@@ -32,9 +32,10 @@ This project demonstrates full-stack development by combining a Python backend w
 ## 🌐 Live Demo
 
 👉 **Live Application:**
-[https://friendly-chatbot-p5hf.onrender.com/] (https://friendly-chatbot-p5hf.onrender.com/)
+https://friendly-chatbot-p5hf.onrender.com/
 
 ---
 
-
-Just say the word 😈
+This is just the beginning!
+Lot more to come..
+Would love feedback from the community 🙂
