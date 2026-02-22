@@ -6,33 +6,35 @@ This project demonstrates full-stack development by combining a Python backend w
 
 ✨ Features
 
-🤖 AI chatbot powered by Groq LLM API
+  🤖 AI chatbot powered by Groq LLM API
+  
+  💬 Real-time conversation interface
+  
+  🎨 Dark / Light theme toggle
+  
+  👤 Personalized greeting using user input
+  
+  📂 Previous chat history saved locally
+  
+  📱 Responsive UI with modern chat bubble layout
+  
+  ⚡ Fast deployment using Render
+  
+  🔐 Secure API key management using environment variables
 
-💬 Real-time conversation interface
-
-🎨 Dark / Light theme toggle
-
-👤 Personalized greeting using user input
-
-📂 Previous chat history saved locally
-
-📱 Responsive UI with modern chat bubble layout
-
-⚡ Fast deployment using Render
-
-🔐 Secure API key management using environment variables
 
 🛠️ Tech Stack
 
-Python (Flask)
+  Python (Flask)
+  
+  HTML / CSS / JavaScript
+  
+  Groq API
+  
+  Gunicorn
+  
+  Render (Deployment)
 
-HTML / CSS / JavaScript
-
-Groq API
-
-Gunicorn
-
-Render (Deployment)
 
 🌐 Live Demo
 
